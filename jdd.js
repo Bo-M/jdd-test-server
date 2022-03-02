@@ -963,7 +963,7 @@ var jdd = {
         var loadUrl = function (id, errId) {
             if ($('#' + id).val().trim().substring(0, 4).toLowerCase() === 'http') {
                 jdd.requestCount++;
-                $.post('proxy.php',
+                $.post('http://0.0.0.0:5001/proxy',
                     {
                         'url': $('#' + id).val().trim()
                     }, function (responseObj) {
