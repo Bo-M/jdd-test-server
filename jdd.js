@@ -984,6 +984,20 @@ var jdd = {
 
         $('body').addClass('progress');
         $('#compare').prop('disabled', true);
+        // Save requests URL
+        var area_url = function (id) {
+            if ($('#' + id).val().trim().substring(0, 4).toLowerCase() === 'http') {
+                return $('#' + id).val().trim()
+            }
+        }
+        var left_url = area_url('textarealeft')
+        if (left_url) {
+            window.left_url = left_url
+        }
+        var right_url = area_url('textarearight')
+        if (right_url) {
+            window.right_url = right_url
+        }
 
         var loadUrl = function (id, errId) {
             if ($('#' + id).val().trim().substring(0, 4).toLowerCase() === 'http') {
@@ -1095,19 +1109,43 @@ var jdd = {
             if (left_side_element_text.includes("file_id") == true) {
                 continue
             }
-            // don't try to show diff for list of file_id
-            if (left_side_element_text.split('"').length > 1) {
-                var matched = left_side_element_text.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
-                if (matched && matched.length > 0) {
-                    continue
-                }
-            }
 
             // convert line string to number
             var line = Number(diff_elms[i].parentElement.classList[1].replace('line', ''))
             var leftSidePath = findPathBasedOnLine(config, line)
             var right_side_element_line = findLineBasedOnPath(config2, leftSidePath)
             var right_side_element_text = $('pre.right div.line' + right_side_element_line + ' > span')[0].innerText
+
+            // don't try to show diff for list of file_id
+            if (left_side_element_text.split('"').length > 1) {
+                var matched = left_side_element_text.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+                var is_file_id = false
+                if (matched && matched.length > 0) {
+                    var img_url = window.left_url.substring(0, window.left_url.lastIndexOf('/')) + '/' + left_side_element_text.split('"')[1] + '.png'
+                    img_url = '/definitions' + img_url.split('/definitions')[1]
+                    diff_elms[i].innerHTML = 
+                        '<span>' + 
+                        diff_elms[i].innerText + 
+                        '</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
+                    
+                    is_file_id = true
+                }
+                var matched = right_side_element_text.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+                if (matched && matched.length > 0) {
+                    var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[1] + '.png'
+                    img_url = '/brobot_bots' + img_url.split('/brobot_bots')[1]
+                    img_url = img_url.replace('downloads', 'screenshots')
+                    $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = 
+                        '<span>' + 
+                        right_side_element_text + 
+                        '</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
+                    
+                    is_file_id = true
+                }
+                if (is_file_id === true){
+                    continue
+                }
+            }
 
             // Find diff using jsdiff: https://github.com/kpdecker/jsdiff
             var text_diff = Diff.diffChars(left_side_element_text, right_side_element_text)
@@ -1202,7 +1240,15 @@ var jdd = {
     }
 };
 
+// Show images on fullscreen after click
+function full_view_src(src){
+    document.querySelector("#img-viewer").querySelector("img").setAttribute("src",src);
+    document.querySelector("#img-viewer").style.display="block";
+}
 
+function close_model(){
+    document.querySelector("#img-viewer").style.display="none";
+}
 
 jQuery(document).ready(function () {
     $('#compare').click(function () {
