@@ -12,6 +12,7 @@
 
         <script src="jsl/jsl.format.js" type="text/javascript" charset="utf-8"></script>
         <script src="jsl/jsl.parser.js" type="text/javascript" charset="utf-8"></script>
+        <script src="https://cdn.jsdelivr.net/npm/diff@5.1.0/dist/diff.min.js"></script>
         <script src="jdd.js" type="text/javascript" charset="utf-8"></script>
 
         <script>
@@ -22,10 +23,10 @@
 
         ga('create', 'UA-26336682-2', 'auto');
         ga('send', 'pageview');
-    	</script>
-		
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9461091723533250"
-		     crossorigin="anonymous"></script>
+    </script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9461091723533250"
+        crossorigin="anonymous"></script>
     </head> 
     <body>
         <div id="main">
@@ -47,9 +48,18 @@
                     </p>
     
                 </div>
-            </div>
+                
+                <div class="requestContainer" style="min-height: unset; position: absolute; top: 9px; left: 0.5%; right: 15%; font-size: .9em;">
+                    <div class="">
+                        <textarea style="min-height: unset; width: 30%; display: block; margin-left: auto; margin-right: auto;" spellcheck="false" id="requestContainerCenter" placeholder="Request file output" tabindex="1" rows="10" disabled></textarea>
+                        <pre id="errorRequestContainerCenter" class="error"></pre>
+                    </div>
     
-            <div class="initContainer">
+                </div>
+                
+            </div>
+
+            <div class="initContainer" style="margin-top: 50px">
                 <div class="left">
                     <textarea spellcheck="false" id="textarealeft" placeholder="Enter JSON to compare, enter an URL to JSON" tabindex="1"></textarea>
                     <pre id="errorLeft" class="error"></pre>
@@ -77,6 +87,6 @@
                 <pre id="out2" class="right" class="codeBlock"></pre>
                 <ul id="toolbar" class="toolbar"></ul>
             </div>
-        </div>        
+        </div>
     </body>
 </html>

@@ -992,6 +992,10 @@ var jdd = {
                     {
                         'url': $('#' + id).val().trim()
                     }, function (responseObj) {
+                        // Show request object at the top of screen
+                        if (responseObj.requestContent.length > 1){
+                            $('#requestContainerCenter').val(responseObj.requestContent);
+                        }
                         if (responseObj.error) {
                             $('#' + errId).text(responseObj.result).show();
                             $('#' + id).addClass('error');
@@ -1068,6 +1072,82 @@ var jdd = {
         $('body').removeClass('progress');
         $('#compare').prop('disabled', false);
 
+        /*  THIS IS ADDED */
+        var findPathBasedOnLine = function (config, line_value) {
+            for (let i = 0; i < config.paths.length; i++) {
+                if (config.paths[i].line == line_value) {
+                    return config.paths[i].path
+                }
+            }
+        }
+        var findLineBasedOnPath = function (config, path_value) {
+            for (let i = 0; i < config.paths.length; i++) {
+                if (config.paths[i].path == path_value) {
+                    return config.paths[i].line
+                }
+            }
+        }
+        // Find all lines that are different
+        var diff_elms = $('pre.left div > span.eq')
+        for (let i = 0; i < diff_elms.length; i++) {
+            var left_side_element_text = diff_elms[i].innerText
+            // file_id is always different so showing diff isn't necessary
+            if (left_side_element_text.includes("file_id") == true) {
+                continue
+            }
+            // convert line string to number
+            var line = Number(diff_elms[i].parentElement.classList[1].replace('line', ''))
+            var leftSidePath = findPathBasedOnLine(config, line)
+            var right_side_element_line = findLineBasedOnPath(config2, leftSidePath)
+            var right_side_element_text = $('pre.right div.line' + right_side_element_line + ' > span')[0].innerText
+
+            // Find diff using jsdiff: https://github.com/kpdecker/jsdiff
+            var text_diff = Diff.diffChars(left_side_element_text, right_side_element_text)
+
+            // Format output elements to just show differences between text
+            var left_column_node = ''
+            var right_column_node = ''
+            for (var j=0; j < text_diff.length; j++) {
+                if (text_diff[j].added) {
+                    right_column_node += 
+                        '<span style="color: #c00;">' + 
+                        text_diff[j].value + 
+                        '</span>'
+                } else if (text_diff[j].removed) {
+                    left_column_node += 
+                        '<span style="color: #c00;">' + 
+                        text_diff[j].value + 
+                        '</span>'
+                } else {
+                    var unchanged_span = '<span>' + text_diff[j].value + '</span>'
+                    right_column_node += unchanged_span
+                    left_column_node += unchanged_span
+                }
+            }
+            diff_elms[i].innerHTML = left_column_node
+            $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = right_column_node
+        }
+        //
+        // Add event for horizontal scroll for both columns, 
+        // so when 1 column is scrolled it will scroll other column automatically
+        // Just like comparing differences in VSCode
+        var horizontal_scroll = function (e, connected_column) {
+            var current_scroll_pos = e.currentTarget.scrollLeft;
+            var max_scroll_pos = $(connected_column).width();
+            if (current_scroll_pos > max_scroll_pos) {
+                current_scroll_pos = max_scroll_pos
+            }
+            $(connected_column).scrollLeft(current_scroll_pos);
+        }
+
+        $('pre.right').on("scroll", function (e) {
+            horizontal_scroll(e, 'pre.left')
+            });
+        
+        $('pre.left').on("scroll", function (e) {
+            horizontal_scroll(e, 'pre.right')
+            });
+        /* End of added code     */
         /*
          * We want to switch the toolbar bar between fixed and absolute position when you
          * scroll so you can get the maximum number of toolbar items.
