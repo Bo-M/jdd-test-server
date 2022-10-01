@@ -33,10 +33,20 @@ JSONDiff also supports two query paramaters so you can load your JSON data from 
 These parameters work like this:
 
 ```
-http://jsondiff.com/?left=http://jsondiff.com/one.json&right=http://jsondiff.com/two.json
+https://jsondiff.com/?left=https://jsondiff.com/one.json&right=https://jsondiff.com/two.json
 ```
 
 Each parameter must be a full URL and must be publicly accessible over the Internet.
+
+## How large a file can JSONDiff handle?
+
+JSONDiff does all of the comparing and rendering right in your browser.  That means it's limited by the browser your running (Chrome is normally the fastest), how fast your computer is, and how much memory you have.  However, it can handle a very large file.
+
+We have two sample files from the Pokemon Go API describing the Pokemon Charmander: `charmander_left.json` and `charmander_right.json`.  Each of these files are over 240 kb and almost 13,000 lines when formatted.  You can load and compare them with a single URL:
+
+[https://jsondiff.com/?left=https://jsondiff.com/charmander_left.json&right=https://jsondiff.com/charmander_right.json](https://jsondiff.com/?left=https://jsondiff.com/charmander_left.json&right=https://jsondiff.com/charmander_right.json)
+
+Thanks to some recent performance improvements from [@Pluckerpluck](https://www.github.com/Pluckerpluck) you can now compare the two in just a few seconds.  Click the URL above and try it out for yourself.
 
 ## Is JSONDiff Secure?
 
@@ -66,14 +76,20 @@ JSONDiff loads the following files when it first starts up:
 | `analytics.js` | Google Analytics that we use to see how many people are using JSONDiff.com |
 | `favicon.ico` | The JSONDiff icon that shows up in the tab of your browser |
 
-### Why don't you use HTTPS?
-
-The short answer is that we don't need to.  HTTPS protects the traffic being sent between your browser and a server so nobody in the middle can see it.  JSONDiff doesn't send any data so there's nothing to protect.
-
 ### What data does JSONDiff send back over the Internet?
 
 It sends nothing.  It just loads the open source files it needs to run and never sends any of the JSON data it is comparing anywhere.
 
+### Why does JSONDiff use HTTPS?
+
+Given the fact we don't send any data over the Internet you might ask why we're using HTTPS.  We don't have any data to encrypt.  
+
+HTTPS provides encryption of the data, but it also provides verification of the identity of the site.  HTTPS guarantees that we are who we say we are and you aren't getting a man in the middle attack where a different site is pretending to be JSONDiff.com.
+
 ### That still doesn't feel secure enough
 
 If that still doesn't feel secure enough you have some other options.  It's very easy to host JSONDiff for yourself.  You can either run in a Docker container, or run on any web server that supports PHP.  You can even skip the PHP part if you don't want to support loading JSON automatically.  Just drop the JSONDiff files in your web server directory and you're done.
+
+## Monitoring
+
+JSONDiff has a separate monitoring page.  You can see the current status at the [JSONDiff Upptime page](https://zgrossbart.github.io/jdd-upptime/).
