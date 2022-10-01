@@ -1095,6 +1095,14 @@ var jdd = {
             if (left_side_element_text.includes("file_id") == true) {
                 continue
             }
+            // don't try to show diff for list of file_id
+            if (left_side_element_text.split('"').length > 1) {
+                var matched = left_side_element_text.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+                if (matched && matched.length > 0) {
+                    continue
+                }
+            }
+
             // convert line string to number
             var line = Number(diff_elms[i].parentElement.classList[1].replace('line', ''))
             var leftSidePath = findPathBasedOnLine(config, line)
@@ -1127,6 +1135,19 @@ var jdd = {
             diff_elms[i].innerHTML = left_column_node
             $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = right_column_node
         }
+
+        // Highlight elapsed_time_seconds from stats field
+        var matchingElement = document.evaluate("//span[contains(text(),'elapsed_time_seconds')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+        if (matchingElement){
+            matchingElement.innerHTML = 
+                '<span>' + 
+                matchingElement.innerText.split(':')[0] + 
+                ':</span>' + 
+                '<span style="background-color: #00c; color: #fff">' + 
+                matchingElement.innerText.split(':')[1] + 
+                '</span>'
+            }
+
         //
         // Add event for horizontal scroll for both columns, 
         // so when 1 column is scrolled it will scroll other column automatically
