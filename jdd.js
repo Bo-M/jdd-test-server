@@ -990,6 +990,7 @@ var jdd = {
                 return $('#' + id).val().trim()
             }
         }
+        //window.request_content = ''
         var left_url = area_url('textarealeft')
         if (left_url) {
             window.left_url = left_url
@@ -1008,6 +1009,7 @@ var jdd = {
                     }, function (responseObj) {
                         // Show request object at the top of screen
                         if (responseObj.requestContent.length > 1){
+                            window.request_content = JSON.parse(responseObj.requestContent.replace(/[,\}\n ]+$/, "") + '}')
                             $('#requestContainerCenter').val(responseObj.requestContent);
                         }
                         if (responseObj.error) {
@@ -1154,14 +1156,19 @@ var jdd = {
             var left_column_node = ''
             var right_column_node = ''
             for (var j=0; j < text_diff.length; j++) {
+                // If diff is space or dash in that case we are highlighting background so it is noticable
+                var style = 'color: #c00;'
+                if (text_diff[j].value == ' ' || text_diff[j].value == '-') {
+                    style = 'color: #fff; background-color: #c00;'
+                }
                 if (text_diff[j].added) {
                     right_column_node += 
-                        '<span style="color: #c00;">' + 
+                        '<span style="' + style + '">' + 
                         text_diff[j].value + 
                         '</span>'
                 } else if (text_diff[j].removed) {
                     left_column_node += 
-                        '<span style="color: #c00;">' + 
+                        '<span style="' + style + '">' + 
                         text_diff[j].value + 
                         '</span>'
                 } else {
@@ -1206,6 +1213,9 @@ var jdd = {
         $('pre.left').on("scroll", function (e) {
             horizontal_scroll(e, 'pre.right')
             });
+        if ((left.scrape_id == right.scrape_id && right.scrape_id == window.request_content.scrape_id) == false){
+            alert("scrape_id is not the same for all 3 files, please check if all files are for same test")
+        }
         /* End of added code     */
         /*
          * We want to switch the toolbar bar between fixed and absolute position when you

@@ -369,19 +369,3 @@ span.fileInput {
         width: 100%;
     }
 }
-
-.img-container{
-    position:relative;
-    width:300px;
-}
-.img-source{
-    border:5px solid #ccc;
-    border-radius:5px;
-    width: 100%;
-}
-.expand-icon{
-    position:absolute; 
-    right:10px; 
-    top:15px; 
-    cursor:pointer;
-}
