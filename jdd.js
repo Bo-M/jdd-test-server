@@ -1312,7 +1312,7 @@ function full_view_src(src){
     document.querySelector("#img-viewer").style.display="block";
 }
 
-function close_model(){
+function close_full_screen_img(){
     document.querySelector("#img-viewer").style.display="none";
 }
 
