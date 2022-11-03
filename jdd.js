@@ -581,7 +581,7 @@ var jdd = {
     /**
      * Format the output pre tags.
      */
-    formatPRETags: function () {
+    formatPRETags: function (parityLinesColumnsLeftRight, parityLinesColumnsRightLeft) {
         forEach($('pre'), function (pre) {
             var lineNumbers = '<div class="gutter">'
             var codeLines = '<div>'
@@ -592,8 +592,28 @@ var jdd = {
             lineDiv.appendChild(lineText)
 
             var addLine = function (line, index) {
-              lineNumbers += '<span class="line-number">' + (index + 1) + ".</span>";
-
+                if (pre.className == "codeBlock left") {
+                    var leftColumnNumber = index + 1
+                    var rightColumnNumber = parityLinesColumnsLeftRight[leftColumnNumber]
+                } else {
+                    var rightColumnNumber = index + 1
+                    var leftColumnNumber = parityLinesColumnsRightLeft[rightColumnNumber]
+                }
+                if (rightColumnNumber == undefined || leftColumnNumber == undefined) {
+                    leftColumnNumber = undefined
+                    rightColumnNumber = undefined
+                }
+                if (leftColumnNumber) {
+                    lineNumbers += 
+                        '<span class="line-number" style="background-color: #f0f4ec; color: #888" onclick="hide_until_line(' + 
+                        leftColumnNumber + 
+                        ', ' + 
+                        rightColumnNumber + 
+                        ') ; return false">' + (index + 1) + ".</span>";
+                }
+                else {
+                    lineNumbers += '<span class="line-number">' + (index + 1) + ".</span>";
+                }
               lineText.nodeValue = line
 
               codeLines +=
@@ -1065,8 +1085,29 @@ var jdd = {
         var config2 = jdd.createConfig();
         jdd.formatAndDecorate(config2, right);
         $('#out2').text(config2.out);
-
-        jdd.formatPRETags();
+        
+        var findLineBasedOnPath = function (config, path_value) {
+            for (let i = 0; i < config.paths.length; i++) {
+                if (config.paths[i].path == path_value) {
+                    return config.paths[i].line
+                }
+            }
+        }
+        var findPathBasedOnLine = function (config, line_value) {
+            for (let i = 0; i < config.paths.length; i++) {
+                if (config.paths[i].line == line_value) {
+                    return config.paths[i].path
+                }
+            }
+        }
+        var parityLinesColumnsLeftRight = {}
+        var parityLinesColumnsRightLeft = {}
+        for (let i = 0; i < config.paths.length; i++) {
+            var c2Line = findLineBasedOnPath(config2, config.paths[i].path)
+            parityLinesColumnsLeftRight[config.paths[i].line] = c2Line
+            parityLinesColumnsRightLeft[c2Line] = config.paths[i].line
+        }
+        jdd.formatPRETags(parityLinesColumnsLeftRight, parityLinesColumnsRightLeft);
 
         config.currentPath = [];
         config2.currentPath = [];
@@ -1089,20 +1130,8 @@ var jdd = {
         $('#compare').prop('disabled', false);
 
         /*  THIS IS ADDED */
-        var findPathBasedOnLine = function (config, line_value) {
-            for (let i = 0; i < config.paths.length; i++) {
-                if (config.paths[i].line == line_value) {
-                    return config.paths[i].path
-                }
-            }
-        }
-        var findLineBasedOnPath = function (config, path_value) {
-            for (let i = 0; i < config.paths.length; i++) {
-                if (config.paths[i].path == path_value) {
-                    return config.paths[i].line
-                }
-            }
-        }
+        
+        
         // Find all lines that are different
         var diff_elms = $('pre.left div > span.eq')
         for (let i = 0; i < diff_elms.length; i++) {
@@ -1150,7 +1179,7 @@ var jdd = {
             }
 
             // Find diff using jsdiff: https://github.com/kpdecker/jsdiff
-            var text_diff = Diff.diffChars(left_side_element_text, right_side_element_text)
+            var text_diff = Diff.diffChars(left_side_element_text, right_side_element_text, {ignoreCase: true})
 
             // Format output elements to just show differences between text
             var left_column_node = ''
@@ -1249,6 +1278,33 @@ var jdd = {
         return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
     }
 };
+var hide_until_line_block =  function (line_number, codeBlock) {
+    var lines = $('.' + codeBlock + '.codeBlock > div > div')
+    for (let i = 0; i < lines.length; i++) {
+        var line = lines[i]
+        if (parseInt(line.className.split(' ').pop().replace('line', '')) < line_number){
+            line.style.display = 'none'
+        }
+        else {
+            break
+        }
+    }
+    var lines = $('.' + codeBlock + '.codeBlock > .gutter > span')
+    for (let i = 0; i < lines.length; i++) {
+        var line = lines[i]
+        if (parseInt(line.innerText.replace('.', '')) < line_number){
+            line.style.display = 'none'
+        }
+        else {
+            break
+        }
+    }
+}
+
+var hide_until_line = function (line_number_left, line_number_right) {
+    hide_until_line_block(line_number_left, 'left')
+    hide_until_line_block(line_number_right, 'right')
+}
 
 // Show images on fullscreen after click
 function full_view_src(src){
