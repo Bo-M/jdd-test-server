@@ -424,6 +424,10 @@ span.fileInput {
     width: 5%;
 }
 
+#pdf-viewer {
+    height: 90%
+}
+
 .show-button {
     color: #fff;
     background-color: #00f
