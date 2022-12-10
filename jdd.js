@@ -1291,6 +1291,39 @@ var jdd = {
                 '</span>'
             }
 
+        // As if there is different number of screenshot for left-right column it wont be treated as diff, 
+        //  it will be treated as missing elements and this way we are checking first 30 rows to see if there is screenshot file_id
+        // TODO this probably wont work for comprovante_de_accesso PDF files, so that will need to be checked
+        var columnsSel = ['pre.left div.line', 'pre.right div.line']
+        for (var i = 0; i < 2; i++) {
+            if (window.request_content.capture_screenshot != true) {
+                continue
+            }
+            for (var j = 1; j < 30; j++) {
+                var el = $(columnsSel[i] + j + ' > span')
+                if (el[0].innerText.split('"').length < 3 || el[0].innerText.includes('show img')) {
+                    continue
+                }
+                var matched = el[0].innerText.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
+                if (matched && matched.length > 0) {
+                    if (columnsSel[i].includes('left')) {
+                        var img_url = window.left_url.substring(0, window.left_url.lastIndexOf('/')) + '/' + el[0].innerText.split('"')[1] + '.png'
+                        img_url = '/definitions' + img_url.split('/definitions')[1]
+                    }
+                    else {
+                        var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + el[0].innerText.split('"')[1] + '.png'
+                        img_url = '/brobot_bots' + img_url.split('/brobot_bots')[1]
+                        img_url = img_url.replace('downloads', 'screenshots')
+
+                    }
+                    el[0].innerHTML =
+                        '<span>' +
+                        el[0].innerText +
+                        '</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
+
+                }
+            }
+        }
         //
         // Add event for horizontal scroll for both columns, 
         // so when 1 column is scrolled it will scroll other column automatically
