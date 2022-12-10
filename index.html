@@ -31,7 +31,19 @@
     <body>
         <div id="img-viewer">
             <span class="close" onclick="close_full_screen_img()">&times;</span>
-            <img class="modal-content" id="full-image" >
+            <span class="margin-close" id="img-margin-right" onclick="close_full_screen_img()"></span>
+            <span class="margin-close" id="img-margin-left" onclick="close_full_screen_img()"></span>
+
+            <img class="modal-content" id="full-image">
+        </div>
+    
+        <div id="pdf-viewer">
+            <span class="close" onclick="close_full_screen_pdf()">&times;</span>
+            <span class="margin-close" id="pdf-margin-right" onclick="close_full_screen_pdf()"></span>
+            <span class="margin-close" id="pdf-margin-left" onclick="close_full_screen_pdf()"></span>
+    
+            <iframe class="modal-content full-pdf" id="full-pdf-left" src=""></iframe>
+            <iframe class="modal-content full-pdf" id="full-pdf-right" src=""></iframe>
         </div>
 
         <div id="main">
