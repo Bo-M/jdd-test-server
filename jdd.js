@@ -1100,6 +1100,18 @@ var jdd = {
                 }
             }
         }
+        
+        function getElementsByXPath(xpath, parent) {
+            // Find all elements based on xpath and return as array this is used when we need to find elements by text
+            let results = [];
+            let query = document.evaluate(xpath, parent || document,
+                null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+            for (let i = 0, length = query.snapshotLength; i < length; ++i) {
+                results.push(query.snapshotItem(i));
+            }
+            return results;
+        }
+
         var parityLinesColumnsLeftRight = {}
         var parityLinesColumnsRightLeft = {}
         for (let i = 0; i < config.paths.length; i++) {
@@ -1131,16 +1143,12 @@ var jdd = {
 
         /*  THIS IS ADDED */
         
+        // TODO maybe add check if all file_id can be downloaded, but it should be alright since we are checking for files_count and that should mean it is "uploaded"
         
         // Find all lines that are different
         var diff_elms = $('pre.left div > span.eq')
         for (let i = 0; i < diff_elms.length; i++) {
             var left_side_element_text = diff_elms[i].innerText
-            // file_id is always different so showing diff isn't necessary
-            if (left_side_element_text.includes("file_id") == true) {
-                continue
-            }
-
             // convert line string to number
             var line = Number(diff_elms[i].parentElement.classList[1].replace('line', ''))
             var leftSidePath = findPathBasedOnLine(config, line)
@@ -1173,6 +1181,47 @@ var jdd = {
                     
                     is_file_id = true
                 }
+                if (left_side_element_text.includes("file_id") == true && right_side_element_text.includes("file_id") == false) {
+                    var pdf_url = window.left_url.substring(0, window.left_url.lastIndexOf('/')) + '/' + left_side_element_text.split('"')[3] + '.pdf'
+                    pdf_url = '/definitions' + pdf_url.split('/definitions')[1]
+                    diff_elms[i].innerHTML =
+                        '<span>' +
+                        diff_elms[i].innerText +
+                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('${pdf_url}', '')">show PDF</span>`
+
+                    is_file_id = true
+                }
+
+                if (right_side_element_text.includes("file_id") == true && left_side_element_text.includes("file_id") == false) {
+                    var pdf_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[3] + '.pdf'
+                    pdf_url = '/brobot_bots' + pdf_url.split('/brobot_bots')[1]
+                    $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML =
+                        '<span>' +
+                        right_side_element_text +
+                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('', '${pdf_url}')">show PDF</span>`
+
+                    is_file_id = true
+                }
+                if (left_side_element_text.includes("file_id") == true && right_side_element_text.includes("file_id") == true) {
+                    var left_pdf_url = window.left_url.substring(0, window.left_url.lastIndexOf('/')) + '/' + left_side_element_text.split('"')[3] + '.pdf'
+                    left_pdf_url = '/definitions' + left_pdf_url.split('/definitions')[1]
+                    //
+                    var right_pdf_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[3] + '.pdf'
+                    right_pdf_url = '/brobot_bots' + right_pdf_url.split('/brobot_bots')[1]
+                    // left column
+                    diff_elms[i].innerHTML =
+                        '<span>' +
+                        diff_elms[i].innerText +
+                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('${left_pdf_url}', '${right_pdf_url}')">show PDF</span>`
+
+                    // right column
+                    $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML =
+                        '<span>' +
+                        right_side_element_text +
+                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('${left_pdf_url}', '${right_pdf_url}')">show PDF</span>`
+                    is_file_id = true
+                }
+
                 if (is_file_id === true){
                     continue
                 }
@@ -1210,6 +1259,26 @@ var jdd = {
             $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = right_column_node
         }
 
+        // This is if there isn't a matching file in test case / resulting data_collected, so we can show those files also
+        var notComparedFileIds = getElementsByXPath("//span[contains(text(),'file_id')]/parent::div")
+        for (let i = 0; i < notComparedFileIds.length; i++) {
+            if (notComparedFileIds[i].parentElement.parentElement.className.includes('left')) {
+                var pdf_url = window.left_url.substring(0, window.left_url.lastIndexOf('/')) + '/' + notComparedFileIds[i].innerText.split('"')[3] + '.pdf'
+                pdf_url = '/definitions' + pdf_url.split('/definitions')[1]
+                var parameters = `'${pdf_url}', ''`
+            }
+            else {
+                var pdf_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + notComparedFileIds[i].innerText.split('"')[3] + '.pdf'
+                pdf_url = '/brobot_bots' + pdf_url.split('/brobot_bots')[1]
+                var parameters = `'', '${pdf_url}'`
+            }
+
+            notComparedFileIds[i].innerHTML =
+                '<span>' +
+                notComparedFileIds[i].innerText +
+                `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf(${parameters})">show PDF</span>`
+        }
+
         // Highlight elapsed_time_seconds from stats field
         var matchingElement = document.evaluate("//span[contains(text(),'elapsed_time_seconds')]", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
         if (matchingElement){
@@ -1245,6 +1314,18 @@ var jdd = {
         if ((left.scrape_id == right.scrape_id && right.scrape_id == window.request_content.scrape_id) == false){
             alert("scrape_id is not the same for all 3 files, please check if all files are for same test")
         }
+
+        // check if number of unique file_id is the same as files_count
+        var fileIds = getElementsByXPath("//pre[contains(@class,'right')]//span[contains(text(),'file_id')]")
+        let files = [];
+        for (let i = 0; i < fileIds.length; i++) {
+            files.push(fileIds[i].innerText.split('"')[3]);
+        }
+        var uniqueFileIds = [...new Set(files)];
+        if (uniqueFileIds.length != right.files_count) {
+            alert(`Number of unique file_id(s): ${uniqueFileIds.length} in data_collected don't match number in files_count: ${right.files_count} `)
+        }
+
         /* End of added code     */
         /*
          * We want to switch the toolbar bar between fixed and absolute position when you
@@ -1308,12 +1389,22 @@ var hide_until_line = function (line_number_left, line_number_right) {
 
 // Show images on fullscreen after click
 function full_view_src(src){
-    document.querySelector("#img-viewer").querySelector("img").setAttribute("src",src);
+    document.querySelector("#img-viewer").querySelector("img").setAttribute("src", src);
     document.querySelector("#img-viewer").style.display="block";
+}
+
+function full_view_pdf(srcLeft, srcRight){
+    document.querySelector("#pdf-viewer").querySelector("#full-pdf-left").setAttribute("src", srcLeft);
+    document.querySelector("#pdf-viewer").querySelector("#full-pdf-right").setAttribute("src", srcRight);
+    document.querySelector("#pdf-viewer").style.display="block";
 }
 
 function close_full_screen_img(){
     document.querySelector("#img-viewer").style.display="none";
+}
+
+function close_full_screen_pdf(){
+    document.querySelector("#pdf-viewer").style.display="none";
 }
 
 jQuery(document).ready(function () {
