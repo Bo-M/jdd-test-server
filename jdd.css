@@ -424,8 +424,14 @@ span.fileInput {
     width: 5%;
 }
 
+.show-button {
+    color: #fff;
+    background-color: #00f
+}
 
-
+.show-button:hover{
+    cursor: pointer;
+}
 
 
 

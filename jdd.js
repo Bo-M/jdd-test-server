@@ -1165,7 +1165,7 @@ var jdd = {
                     diff_elms[i].innerHTML = 
                         '<span>' + 
                         diff_elms[i].innerText + 
-                        '</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
+                        '</span><span>        </span><span class="show-button" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
                     
                     is_file_id = true
                 }
@@ -1177,7 +1177,7 @@ var jdd = {
                     $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = 
                         '<span>' + 
                         right_side_element_text + 
-                        '</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
+                        '</span><span>        </span><span class="show-button" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
                     
                     is_file_id = true
                 }
@@ -1187,7 +1187,7 @@ var jdd = {
                     diff_elms[i].innerHTML =
                         '<span>' +
                         diff_elms[i].innerText +
-                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('${pdf_url}', '')">show PDF</span>`
+                        `</span><span>        </span><span class="show-button" onclick="full_view_pdf('${pdf_url}', '')">show PDF</span>`
 
                     is_file_id = true
                 }
@@ -1198,7 +1198,7 @@ var jdd = {
                     $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML =
                         '<span>' +
                         right_side_element_text +
-                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('', '${pdf_url}')">show PDF</span>`
+                        `</span><span>        </span><span class="show-button" onclick="full_view_pdf('', '${pdf_url}')">show PDF</span>`
 
                     is_file_id = true
                 }
@@ -1212,13 +1212,13 @@ var jdd = {
                     diff_elms[i].innerHTML =
                         '<span>' +
                         diff_elms[i].innerText +
-                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('${left_pdf_url}', '${right_pdf_url}')">show PDF</span>`
+                        `</span><span>        </span><span class="show-button"" onclick="full_view_pdf('${left_pdf_url}', '${right_pdf_url}')">show PDF</span>`
 
                     // right column
                     $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML =
                         '<span>' +
                         right_side_element_text +
-                        `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf('${left_pdf_url}', '${right_pdf_url}')">show PDF</span>`
+                        `</span><span>        </span><span class="show-button" onclick="full_view_pdf('${left_pdf_url}', '${right_pdf_url}')">show PDF</span>`
                     is_file_id = true
                 }
 
@@ -1276,7 +1276,7 @@ var jdd = {
             notComparedFileIds[i].innerHTML =
                 '<span>' +
                 notComparedFileIds[i].innerText +
-                `</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_pdf(${parameters})">show PDF</span>`
+                `</span><span>        </span><span class="show-button" onclick="full_view_pdf(${parameters})">show PDF</span>`
         }
 
         // Highlight elapsed_time_seconds from stats field
@@ -1319,7 +1319,7 @@ var jdd = {
                     el[0].innerHTML =
                         '<span>' +
                         el[0].innerText +
-                        '</span><span>        </span><span style="color: #fff; background-color: #00f" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
+                        '</span><span>        </span><span class="show-button" onclick="full_view_src(\'' + img_url + '\')">show img</span>'
 
                 }
             }
