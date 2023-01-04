@@ -1029,7 +1029,7 @@ var jdd = {
                     }, function (responseObj) {
                         // Show request object at the top of screen
                         if (responseObj.requestContent.length > 1){
-                            window.request_content = JSON.parse(responseObj.requestContent.replace(/[,\}\n ]+$/, "") + '}')
+                            window.request_content = JSON.parse(responseObj.requestContent.replace(/^.*[ ]+"use_proxy.*$/mg, ""))
                             $('#requestContainerCenter').val(responseObj.requestContent);
                         }
                         if (responseObj.error) {
