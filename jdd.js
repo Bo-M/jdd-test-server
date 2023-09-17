@@ -1173,9 +1173,15 @@ var jdd = {
                 }
                 var matched = right_side_element_text.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
                 if (matched && matched.length > 0) {
-                    var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[1] + '.png'
-                    img_url = python_server_static_files_path + '/brobot_bots' + img_url.split('/brobot_bots')[1]
-                    img_url = img_url.replace('downloads', 'screenshots')
+                    if (window.right_url.includes('brobot_bots') == true) {
+                        var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[1] + '.png'
+                        img_url = python_server_static_files_path + '/brobot_bots' + img_url.split('/brobot_bots')[1]
+                        img_url = img_url.replace('downloads', 'screenshots')
+                    }
+                    else {
+                        img_url = python_server_static_files_path  + '/' + right_side_element_text.split('"')[1] + '.png'
+                    }
+
                     $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = 
                         '<span>' + 
                         right_side_element_text + 
@@ -1321,9 +1327,16 @@ var jdd = {
                         img_url = '/definitions' + img_url.split('/definitions')[1]
                     }
                     else {
-                        var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + el[0].innerText.split('"')[1] + '.png'
-                        img_url = python_server_static_files_path + '/brobot_bots' + img_url.split('/brobot_bots')[1]
-                        img_url = img_url.replace('downloads', 'screenshots')
+                        if (window.right_url.includes('brobot_bots') == true) {
+                            var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + el[0].innerText.split('"')[1] + '.png'
+                            img_url = python_server_static_files_path + '/brobot_bots' + img_url.split('/brobot_bots')[1]
+                            img_url = img_url.replace('downloads', 'screenshots')
+                        }
+                        else {
+                            img_url = python_server_static_files_path  + '/' + el[0].innerText.split('"')[1] + '.png'
+                        }
+                    
+                        
 
                     }
                     el[0].innerHTML =
