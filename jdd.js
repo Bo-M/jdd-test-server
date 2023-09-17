@@ -1029,7 +1029,8 @@ var jdd = {
                     }, function (responseObj) {
                         // Show request object at the top of screen
                         if (responseObj.requestContent.length > 1){
-                            window.request_content = JSON.parse(responseObj.requestContent.replace(/^.*[ ]+"use_proxy.*$/mg, ""))
+                            // TODO window.request_content = JSON.parse(responseObj.requestContent.replace(/^.*[,\n ]+"use_proxy.*$/mg, ""))
+                            window.request_content = JSON.parse(responseObj.requestContent)
                             $('#requestContainerCenter').val(responseObj.requestContent);
                         }
                         if (responseObj.error) {
@@ -1147,6 +1148,7 @@ var jdd = {
         
         // Find all lines that are different
         var diff_elms = $('pre.left div > span.eq')
+        var python_server_static_files_path = 'http://127.0.0.1:5001/static_pdf_png_files'
         for (let i = 0; i < diff_elms.length; i++) {
             var left_side_element_text = diff_elms[i].innerText
             // convert line string to number
@@ -1172,7 +1174,7 @@ var jdd = {
                 var matched = right_side_element_text.split('"')[1].match(/^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
                 if (matched && matched.length > 0) {
                     var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[1] + '.png'
-                    img_url = '/brobot_bots' + img_url.split('/brobot_bots')[1]
+                    img_url = python_server_static_files_path + '/brobot_bots' + img_url.split('/brobot_bots')[1]
                     img_url = img_url.replace('downloads', 'screenshots')
                     $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML = 
                         '<span>' + 
@@ -1194,7 +1196,7 @@ var jdd = {
 
                 if (right_side_element_text.includes("file_id") == true && left_side_element_text.includes("file_id") == false) {
                     var pdf_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[3] + '.pdf'
-                    pdf_url = '/brobot_bots' + pdf_url.split('/brobot_bots')[1]
+                    pdf_url = python_server_static_files_path + '/brobot_bots' + pdf_url.split('/brobot_bots')[1]
                     $('pre.right div.line' + right_side_element_line + ' > span')[0].innerHTML =
                         '<span>' +
                         right_side_element_text +
@@ -1207,7 +1209,7 @@ var jdd = {
                     left_pdf_url = '/definitions' + left_pdf_url.split('/definitions')[1]
                     //
                     var right_pdf_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + right_side_element_text.split('"')[3] + '.pdf'
-                    right_pdf_url = '/brobot_bots' + right_pdf_url.split('/brobot_bots')[1]
+                    right_pdf_url = python_server_static_files_path + '/brobot_bots' + right_pdf_url.split('/brobot_bots')[1]
                     // left column
                     diff_elms[i].innerHTML =
                         '<span>' +
@@ -1269,7 +1271,12 @@ var jdd = {
             }
             else {
                 var pdf_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + notComparedFileIds[i].innerText.split('"')[3] + '.pdf'
-                pdf_url = '/brobot_bots' + pdf_url.split('/brobot_bots')[1]
+                if (pdf_url.includes('brobot_bots') == true) {
+                    pdf_url = python_server_static_files_path + '/brobot_bots' + pdf_url.split('/brobot_bots')[1]
+                }
+                else {
+                    pdf_url = python_server_static_files_path  + pdf_url.split('cache_static_files')[1]
+                }
                 var parameters = `'', '${pdf_url}'`
             }
 
@@ -1301,6 +1308,9 @@ var jdd = {
             }
             for (var j = 1; j < 30; j++) {
                 var el = $(columnsSel[i] + j + ' > span')
+                if (el[0] == undefined) {
+                    continue
+                }
                 if (el[0].innerText.split('"').length < 3 || el[0].innerText.includes('show img')) {
                     continue
                 }
@@ -1312,7 +1322,7 @@ var jdd = {
                     }
                     else {
                         var img_url = window.right_url.substring(0, window.right_url.lastIndexOf('/')) + '/' + el[0].innerText.split('"')[1] + '.png'
-                        img_url = '/brobot_bots' + img_url.split('/brobot_bots')[1]
+                        img_url = python_server_static_files_path + '/brobot_bots' + img_url.split('/brobot_bots')[1]
                         img_url = img_url.replace('downloads', 'screenshots')
 
                     }
@@ -1344,7 +1354,7 @@ var jdd = {
         $('pre.left').on("scroll", function (e) {
             horizontal_scroll(e, 'pre.right')
             });
-        if ((left.scrape_id == right.scrape_id && right.scrape_id == window.request_content.scrape_id) == false){
+        if ((left.scrape_id == right.scrape_id && right.scrape_id == window.request_content.scrape_id) == false && window.left_url.includes('empty_response.json') == false){
             alert("scrape_id is not the same for all 3 files, please check if all files are for same test")
         }
 
